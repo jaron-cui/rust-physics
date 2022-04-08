@@ -108,8 +108,14 @@ impl Atom {
         let theta = dy.atan2(dx);
         let xp = theta.cos();//(dx / (dx + dy)).abs();
         let yp = theta.sin();
-        let xf = atom2.xv * atom2.mass - atom1.xv * atom1.mass;
-        let yf = atom2.yv * atom2.mass - atom1.yv * atom1.mass;
+
+        let mp = atom1.mass / atom2.mass;
+        let rxv = atom1.xv - atom2.xv;
+        let ryv = atom1.yv - atom2.yv;
+        let f1 = ((mp - 1.0) / (mp + 1.0) - 1.0) * atom1.mass * 0.96;
+        let xf = f1 * rxv;//atom2.xv * atom2.mass - atom1.xv * atom1.mass;
+        let yf = f1 * ryv;//atom2.yv * atom2.mass - atom1.yv * atom1.mass;
+        //print!("dx:{} dy:{} xf:{} yf:{}\n", dx, dy, xf, yf);
         //let f = (xf * xf + yf * yf).sqrt();
         
         //let xc = xf * xp * 0.8;
@@ -120,8 +126,9 @@ impl Atom {
         let c = uv / mv2;
         let xc = c * dx;
         let yc = c * dy;
+        //print!("uv:{}, mv2:{}, c:{}\n", uv, mv2, c);
 
-        print!("impulse: ({}, {}), angle: {}, time: {}, sin/cos: {}/{}\n", xc, yc, theta, t, xp, yp);
+        //print!("impulse: ({}, {}), angle: {}, time: {}, sin/cos: {}/{}\n", xc, yc, theta, t, xp, yp);
         return (xc, yc);
     }
 
@@ -213,8 +220,11 @@ fn model(_app: &App) -> Model {
 }
 
 fn update(_app: &App, model: &mut Model, _update: Update) {
+  if true || _app.keys.down.contains(&Key::W) {
     Atom::apply_forces(&Atom::gravity_forces, &mut model.atoms);
     Atom::apply_collisions(&mut model.atoms);
+    
+  }
 }
 
 fn view(_app: &App, _model: &Model, frame: Frame) {
@@ -234,5 +244,7 @@ fn view(_app: &App, _model: &Model, frame: Frame) {
 }
 
 fn key_pressed(app: &App, model: &mut Model, key: Key) {
-    
+  if app.keys.down.contains(&Key::W) {
+    print!("key pressed");
+  }
 }
